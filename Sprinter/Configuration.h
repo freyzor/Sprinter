@@ -13,7 +13,7 @@
 // Gen 3 Plus = 21
 // gen 3  Monolithic Electronics = 22
 // Gen3 PLUS for TechZone Gen3 Remix Motherboard = 23
-#define MOTHERBOARD 3 
+#define MOTHERBOARD 33
 
 //// Thermistor settings:
 // 1 is 100k thermistor
@@ -28,7 +28,12 @@
 
 //// Calibration variables
 // X, Y, Z, E steps per unit - Metric Prusa Mendel with Wade extruder:
-float axis_steps_per_unit[] = {80, 80, 3200/1.25,700}; 
+// configured for 1/8 microstepping 1.8° step motors (200 steps per revolution)
+// x = 200 x 8 / 30mm (12 teeth 2.5mm pitch)
+// y = 200 x 8 / 30mm (12 teeth 2.5mm pitch)
+// z = 200 x 8 / 2mm (2mm thread pitch)
+// e0 = 200 x 8 / 25mm (0.8 dia knurled shaft, may need tuning)
+float axis_steps_per_unit[] = {53.3333, 53.3333, 800, 64}; 
 // Metric Prusa Mendel with Makergear geared stepper extruder:
 //float axis_steps_per_unit[] = {80,80,3200/1.25,1380}; 
 // MakerGear Hybrid Prusa Mendel:
@@ -48,7 +53,7 @@ const bool Z_ENDSTOP_INVERT = false;
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-#define SDSUPPORT
+//#define SDSUPPORT
 // Uncomment to make Sprinter run init.g from SD on boot
 //#define SDINITFILE
 
@@ -70,26 +75,26 @@ const bool DISABLE_Z = true;
 const bool DISABLE_E = false;
 
 // Inverting axis direction
-const bool INVERT_X_DIR = false;
+const bool INVERT_X_DIR = true;
 const bool INVERT_Y_DIR = false;
 const bool INVERT_Z_DIR = true;
 const bool INVERT_E_DIR = false;
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1
+#define X_HOME_DIR  1
 #define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define Z_HOME_DIR  1
 
 const bool min_software_endstops = false; //If true, axis won't move to coordinates less than zero.
 const bool max_software_endstops = true;  //If true, axis won't move to coordinates greater than the defined lengths below.
-const int X_MAX_LENGTH = 200;
-const int Y_MAX_LENGTH = 200;
-const int Z_MAX_LENGTH = 100;
+const int X_MAX_LENGTH = 140;
+const int Y_MAX_LENGTH = 130;
+const int Z_MAX_LENGTH = 90.0;
 
 //// MOVEMENT SETTINGS
 const int NUM_AXIS = 4; // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {200000, 200000, 240, 500000};
+float max_feedrate[] = {200000, 200000, 500, 500000};
 float homing_feedrate[] = {1500,1500,120};
 bool axis_relative_modes[] = {false, false, false, false};
 

@@ -1,14 +1,16 @@
-  // Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
+// Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
 // Licence: GPL
 
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
 #include "Sprinter.h"
-
+#include <LiquidCrystal.h>
 #ifdef SDSUPPORT
 #include "SdFat.h"
 #endif
+
+LiquidCrystal lcd(16, 17, 23, 25, 27, 29);
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -145,7 +147,9 @@ int tt = 0, bt = 0;
 #ifdef MAXTEMP
 int maxttemp = temp2analogh(MAXTEMP);
 #endif
-        
+
+int fan_speed = 0;
+
 //Inactivity shutdown variables
 unsigned long previous_millis_cmd = 0;
 unsigned long max_inactive_time = 0;
@@ -372,7 +376,11 @@ void setup()
   initsd();
 
 #endif
-
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+  lcd.print("SUMPOD  FAN:  0%");
+  lcd.setCursor(0, 1);
+  lcd.print("TEMP:   0 /   0");
 }
 
 
@@ -403,9 +411,33 @@ void loop()
     bufindr = (bufindr + 1)%BUFSIZE;
     }
   //check heater every n milliseconds
-      manage_heater();
-      manage_inactivity(1);
-  }
+  manage_heater();
+  manage_inactivity(1);
+  
+  //display target temp
+  lcd.setCursor(6,1);
+  int temp_val = analog2temp(target_raw);
+  // padding for small numbers to right justify and clear old values.
+  if (temp_val < 10) lcd.print("  ");
+  else if (temp_val < 100) lcd.print(" ");
+  lcd.print(temp_val) ; 
+  
+  //display current temp
+  lcd.setCursor(12,1);
+  temp_val = analog2temp(current_raw);
+  // padding for small numbers to right justify and clear old values.
+  if (temp_val < 10) lcd.print("  ");
+  else if (temp_val < 100) lcd.print(" ");
+  lcd.print(temp_val);
+  
+  // display fan speed as a presentage of max speed
+  int fan_val = (fan_speed*100)/255;
+  lcd.setCursor(12,0);
+  if (fan_val < 10) lcd.print("  ");
+  else if (fan_val < 100) lcd.print(" ");
+  lcd.print(fan_val);
+  
+}
 
 
 inline void get_command() 
@@ -888,16 +920,17 @@ inline void process_commands()
       #if FAN_PIN > -1
       case 106: //M106 Fan On
         if (code_seen('S')){
-            WRITE(FAN_PIN, HIGH);
-            analogWrite(FAN_PIN, constrain(code_value(),0,255) );
+            fan_speed = constrain(code_value(),0,255);
         }
         else {
-            WRITE(FAN_PIN, HIGH);
-            analogWrite(FAN_PIN, 255 );
+            fan_speed = 175;
         }
+        WRITE(FAN_PIN, HIGH);
+        analogWrite(FAN_PIN, fan_speed);
         break;
       case 107: //M107 Fan Off
-          analogWrite(FAN_PIN, 0);
+          fan_speed = 0;
+          analogWrite(FAN_PIN, fan_speed);
           WRITE(FAN_PIN, LOW);
         break;
       #endif
@@ -934,7 +967,7 @@ inline void process_commands()
         
         break;
       case 115: // M115
-        Serial.print("FIRMWARE_NAME:Sprinter FIRMWARE_URL:http%%3A/github.com/kliment/Sprinter/ PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1 UUID:");
+        Serial.print("FIRMWARE_NAME:Sprinter FIRMWARE_URL:http%%3A/github.com/freyzor/Sprinter/ PROTOCOL_VERSION:1.0 MACHINE_TYPE:Sumpod EXTRUDER_COUNT:1 UUID:");
         Serial.println(uuid);
         break;
       case 114: // M114
