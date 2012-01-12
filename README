@@ -1,3 +1,24 @@
+This is a fork of the kliment/Sprinter repository for customization of code for the Sumpod platform by Richard Sum.
+There are currently LCD additions and configuration differences.
+The plan is to keep track of differences while following upstream.
+Also I want to support a greater range of gcodes to make the firmware a better capable CNC platform for milling, drilling etching.
+Currently I'm generating a drill plan in cambam using canned drill cycles so to run the generated script out of the box I need to
+support additional gcode instructions.
+
+gcode references:
+http://linuxcnc.org/docs/html/gcode_main.html
+http://www.dakeng.com/man/turbocnc.htm
+http://en.wikipedia.org/wiki/G-code
+
+TODO:
+ - Add support for additional gcode instructions to support
+  - T0 M6: manual tool change (will require an OK/Enter button of some sort)
+  - G98: Set Canned Cycle Return Level
+  - G81: Drilling Cycle
+  - G2: Arc/CW circular interpolation
+
+=== Orginal README ===
+
 The leading developers of Sprinter are currently Kliment and caru, though many others contribute with their patches.
 
 This is a firmware for RAMPS and other reprap single-processor electronics setups. It supports printing from SD card, active heatbed control, and ATmega internal pullups.
